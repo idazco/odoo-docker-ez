@@ -1,0 +1,10 @@
+geopy==1.11
+simplejson
+pygal==2.4
+boto3
+botocore
+pyyaml
+pyjwt
+python-jenkins
+gevent
+psycogreen

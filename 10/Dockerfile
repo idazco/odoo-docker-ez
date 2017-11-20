@@ -41,7 +41,7 @@ RUN set -x; \
         && apt-get update \
         && apt-get -y install -f --no-install-recommends \
         && rm -rf /var/lib/apt/lists/* /tmp/odoo.deb
-# After this point .. everything else should be the same
+# Next part should be the same
 
 
 # Copy entrypoint script and Odoo configuration file
@@ -56,6 +56,7 @@ RUN mkdir -p /mnt/extra-addons \
         && chown -R odoo:root /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
+
 ###########################
 # customization ::
 # install additional deps:
@@ -64,11 +65,20 @@ RUN set -x; \
         && apt-get install -y --no-install-recommends \
         	build-essential \
         	autoconf \
+        	libssl-dev \
+        	libffi-dev \
         	libtool \
         	python-dev \
         	nano \
         	net-tools
+## 3rd party Python depencencies installed from requirements.txt
+ADD requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
+
+###########################
+# END customization
+###########################
 
 # make sure the entry point file is executable
 RUN chmod +x /entrypoint.sh
