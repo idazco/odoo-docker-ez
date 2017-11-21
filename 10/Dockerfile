@@ -41,6 +41,7 @@ RUN set -x; \
         && apt-get update \
         && apt-get -y install -f --no-install-recommends \
         && rm -rf /var/lib/apt/lists/* /tmp/odoo.deb
+RUN mkdir -p /mnt/downloaded-addons
 # Next part should be the same
 
 
