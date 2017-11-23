@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER Mike
+MAINTAINER Mike Mügge
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN set -x; \
@@ -41,7 +41,6 @@ RUN set -x; \
         && apt-get update \
         && apt-get -y install -f --no-install-recommends \
         && rm -rf /var/lib/apt/lists/* /tmp/odoo.deb
-RUN mkdir -p /mnt/downloaded-addons
 # Next part should be the same
 
 
@@ -72,9 +71,51 @@ RUN set -x; \
         	python-dev \
         	nano \
         	net-tools
-## 3rd party Python depencencies installed from requirements.txt
-ADD requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+# Install NGINX ~ documentation does not tell you that certain Odoo
+# modules cannot work properly unless Odoo is proxied through nginx
+# certain way, by setting certain headers
+RUN set -x; \
+		apt-get update && \
+		apt-get install -y nginx && \
+		rm -rf /var/lib/apt/lists/* && \
+		chown -R odoo:odoo /var/lib/nginx && \
+		chown -R odoo:odoo /var/log/nginx
+ADD nginx.conf /etc/nginx/nginx.conf
+
+# Use tini to run nginx and odoo
+# See https://github.com/docker-library/official-images#init
+ENV TINI_VERSION v0.9.0
+RUN set -x \
+	&& curl -fSL "https://github.com/krallin/tini/releases/download/$TINI_VERSION/tini" -o /usr/local/bin/tini \
+	&& curl -fSL "https://github.com/krallin/tini/releases/download/$TINI_VERSION/tini.asc" -o /usr/local/bin/tini.asc \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
+	&& gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini \
+	&& rm -r "$GNUPGHOME" /usr/local/bin/tini.asc \
+	&& chmod +x /usr/local/bin/tini \
+	&& tini -h
+
+### 3rd party Python depencencies installed from requirements.txt
+#ADD requirements.txt /tmp/requirements.txt
+#RUN pip install -r /tmp/requirements.txt
+#
+## download opensource modules as source (no git credentials needed)
+#RUN mkdir -p /mnt/downloaded-addons
+#RUN chmod -R +r /mnt/downloaded-addons
+#WORKDIR /mnt/downloaded-addons
+## THE MODULES:
+###################
+## --> auth0 :
+#RUN wget https://github.com/idazco/odoo_auth0/archive/master.zip -O /tmp/tmp.zip
+#RUN unzip /tmp/tmp.zip -d /mnt/downloaded-addons/
+#RUN mv ./odoo_auth0-master ./auth0
+## --> ci_jenkins :
+#RUN wget https://github.com/dduarte-odoogap/ci_jenkins/archive/master.zip -O /tmp/tmp.zip
+#RUN unzip /tmp/tmp.zip -d /mnt/downloaded-addons/
+#RUN mv ./ci_jenkins-master ./ci_jenkins
+###################
+## clean-up
+#RUN rm /tmp/tmp.zip
 
 
 ###########################
@@ -85,10 +126,10 @@ RUN pip install -r /tmp/requirements.txt
 RUN chmod +x /entrypoint.sh
 
 # the Docker healthcheck command
-HEALTHCHECK CMD curl --fail http://localhost:8069/web/database/selector || exit 1
+HEALTHCHECK CMD curl --fail http://127.0.0.1:8069/web/database/selector || exit 1
 
-# Expose Odoo services
-EXPOSE 8069 8071
+# Expose nginx
+EXPOSE 8080
 
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
@@ -96,5 +137,5 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 # Set default user when running the container
 USER odoo
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "/entrypoint.sh"]
 CMD ["odoo"]
