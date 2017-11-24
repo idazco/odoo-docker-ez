@@ -1,0 +1,25 @@
+version: '3'
+services:
+
+  postgres:
+    container_name: odoo-db
+    image: "sylnsr/postgres-ssl:9.5"
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    expose:
+      - 5432
+
+  odoo10:
+    container_name: odoo10
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./run-demo.conf:/etc/odoo/odoo.conf:ro
+    depends_on:
+      - postgres
+    links:
+      - postgres:db
+    ports:
+      - 8080:8080

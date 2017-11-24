@@ -1,25 +1,52 @@
-# odoo-enterprise-dockerfile
+# odoo-docker-ez
 
-A Dockerfile for Odoo 10 Enterprise image building.
+## Project Goals
 
-## NOTE:
-This does NOT include any Odoo Enterprise modules. You will need to buy a valid Enterprise license and [download](https://www.odoo.com/page/download) the Debian installer package (odoo_10.0+e.latest_all.deb) to the `/resources` folder. The Dockerfile will then use the Debian installer package to install Odoo Enterprise edition from that folder.
+ - Provide a simple way to build Docker Odoo images
+ - Make the images as complete as possible so that, for most use cases, things just work without additional effort
 
-## How this project differs from https://github.com/odoo/docker
+## Whats special about our build
 
- 1. Instead of installing Community edition from http://nightly.odoo.com, the Dockerfile will install the Enterprise edition from the Debian package which *YOU* must download to the `/resources` folder  
- 1. I currently just support version 10. When I start doing work related to version 11 I will add it.
+ - Nginx reverse proxy is already part of the image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module.
+ - We pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there. 
+
+<hr>
+
+# Instructions
+
+## Building an Enterprise edition Docker image
+
+ 1. Login to your Odoo account and download the Debian installer package for Enterprise edition to the `download` folder in this project.
+ 1. Rename the downloaded file to `odoo.deb`
+ 1. Run the `build.sh` bash script
+
+## Building a Community edition Docker image
+
+Just run the `build.sh` script
  
-## Directions
+## Running a demo instance using with Community edition
 
- 1. Login to your Odoo account and download the Debian installer package
- 1. Download the Debian installer to the appropriate `/resources` folder
- 1. Run the `build.sh` file
- 
-### Optional
+Just run the `run-demo` script. This will build the default image then run docker-compose to launch a database container and the Odoo container.
 
-Re-tag the built image to whatever you want to call it and upload it your *private* repo.
+The app can be accessed at http://localhost:8080. The "Master Password" is `odoo_admin`.
+
+<hr>
+
+# Compatibility
+
+ - Tested with `docker` 17 CE
+ - Tested with `docker-compose` 1.17
+
+<hr>
+
+# Additional notes
+
+Re-tag the built image to whatever you want to call it and upload it your own Docker repo.
 For example:
 
-	docker tag odoo10e mydockerorg/odoo10e
-	docker push mydockerorg/odoo10e
+	docker tag idazco/odoo10 your-dockerhub-org/odoo10
+	docker push your-dockerhub-org/odoo10
+
+If you build an Enterprise edition image, make sure to upload it to a **private** repo.
+
+Running the demo uses Postgres 9.5, but you should be able to use Postgres 9.6 without any issues.
