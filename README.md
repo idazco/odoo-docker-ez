@@ -30,6 +30,15 @@ Just run the `run-demo` script. This will build the default image then run docke
 
 The app can be accessed at http://localhost:8080. The "Master Password" is `odoo_admin`.
 
+# Configuration
+
+Refer to the Odoo documentation for correct configuration options. You can refer to the [run-demo.conf](10/run-demo.conf) file for a basic configuration example. Because this project will include an nginx reverse proxy, the config file you use **MUST** have the following:
+
+	longpolling_port = 8072
+    reverse_proxy = True
+
+Additionally, if you are going to use features that require running an "evented" instance of Odoo, such as the Discuss module, then you **MUST** set `workers` to a value greater than zero.
+
 <hr>
 
 # Compatibility
