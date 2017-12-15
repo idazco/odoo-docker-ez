@@ -16,9 +16,8 @@
 
 ## Building an Enterprise edition Docker image
 
- 1. Login to your Odoo account and download the Debian installer package for Enterprise edition to the `download` folder in this project.
- 1. Rename the downloaded file to `odoo.deb`
- 1. Run the `build.sh` bash script
+ 1. Login to your Odoo account and download the Debian installer package for Enterprise edition to the `download` folder in this project. The downloaded file should be named `odoo_10.0+e.latest_all.deb`
+ 1. Run the `build-enterprise.sh` bash script
 
 ## Building a Community edition Docker image
 
