@@ -8,3 +8,4 @@ pyjwt
 python-jenkins
 gevent
 psycogreen
+pydevd
