@@ -31,7 +31,7 @@ The app can be accessed at http://localhost:8080. The "Master Password" is `odoo
 
 # Configuration
 
-Refer to the Odoo documentation for correct configuration options. You can refer to the [run-demo.conf](10/run-demo.conf) file for a basic configuration example. Because this project will include an nginx reverse proxy, the config file you use **MUST** have the following:
+Refer to the Odoo documentation for correct configuration options. You can refer to the [run-demo.conf](10/run-demo.conf) file for a basic configuration example. Because this project will include an nginx reverse proxy, the config file you use must not change the following:
 
 	longpolling_port = 8072
     reverse_proxy = True

@@ -23,6 +23,7 @@ RUN set -x; \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
         && pip install psycogreen==1.0
 
+# Install Odoo
 ADD "download/odoo.deb" /tmp/odoo.deb
 RUN set -x; \
         dpkg --force-depends -i /tmp/odoo.deb \

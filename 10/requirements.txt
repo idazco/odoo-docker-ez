@@ -9,3 +9,4 @@ python-jenkins
 gevent
 psycogreen
 pydevd
+ofxparse
