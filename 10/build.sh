@@ -2,9 +2,9 @@
 cd "$(dirname "$0")"
 
 ODOO_VERSION="10.0"
-ODOO_RELEASE="20171030"
+ODOO_RELEASE="20180122"
 DOWNLOAD_NAME="odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb"
-DOWNLOAD_HASH="b250b2bbcda6056146d323eb0d7a1e609a09d0ec"
+DOWNLOAD_HASH="836f0fb94aee0d3771cf2188309f6079ee35f83e"
 
 # Download Community Edition if the download folder does not have a .deb file in it
 if [ ! -f download/"$DOWNLOAD_NAME" ]; then
