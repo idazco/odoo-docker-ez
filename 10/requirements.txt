@@ -10,3 +10,4 @@ gevent
 psycogreen
 pydevd
 ofxparse
+xlrd
