@@ -12,9 +12,12 @@ services:
 
   odoo10:
     container_name: odoo10
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "idazco/odoo10:community"
+
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+
     volumes:
       - ./run-demo.conf:/etc/odoo/odoo.conf:ro
     depends_on:
