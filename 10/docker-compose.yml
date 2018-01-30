@@ -3,7 +3,7 @@ services:
 
   postgres:
     container_name: odoo-db
-    image: "sylnsr/postgres-ssl:9.6"
+    image: "postgres:9.6"
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
