@@ -20,8 +20,7 @@ RUN set -x; \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
-        && pip install psycogreen==1.0
+        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 # Install Odoo
 ADD "download/odoo.deb" /tmp/odoo.deb
