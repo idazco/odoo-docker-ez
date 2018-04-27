@@ -80,6 +80,23 @@ VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
 
 ##########
+# Modern projects use Postgres 9.6 so make sure we have the PG tools for v9.6
+# from https://github.com/frodenas/docker-postgresql/blob/master/Dockerfile#L4
+# However, if your project uses an older version, just set PG_VERSION here:
+ENV PG_VERSION 9.6
+RUN DEBIAN_FRONTEND=noninteractive \
+    cd /tmp && \
+    curl https://www.postgresql.org/media/keys/ACCC4CF8.asc -o ACCC4CF8.asc && \
+    apt-key add ACCC4CF8.asc && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y --force-yes \
+    postgresql-client-${PG_VERSION} && \
+	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
+
+##########
 # Startup
 ##########
 
