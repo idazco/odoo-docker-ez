@@ -26,12 +26,15 @@ RUN set -x; \
 			libtool \
 			libpq-dev \
 			nginx \
+			locales \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
+        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
+        && export PYTHONIOENCODING=UTF-8 \
+        && locale-gen en_US.UTF-8
 
 ADD nginx.conf /etc/nginx/nginx.conf
 
@@ -93,8 +96,6 @@ RUN DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --force-yes \
     postgresql-client-${PG_VERSION} && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-
 
 ##########
 # Startup
