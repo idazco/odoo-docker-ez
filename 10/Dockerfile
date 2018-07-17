@@ -105,7 +105,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
 RUN chmod +x /entrypoint.sh
 
 # the Docker healthcheck command
-HEALTHCHECK CMD curl --fail http://127.0.0.1:8069/web/database/selector || exit 1
+HEALTHCHECK CMD curl --fail http://127.0.0.1:8069/web_editor/static/src/xml/ace.xml || exit 1
 
 # Expose proxy
 EXPOSE 8080
