@@ -9,6 +9,8 @@ services:
       - POSTGRES_PASSWORD=odoo
     expose:
       - 5432
+    ports:
+      - 5433:5432
 
   odoo10:
     container_name: odoo10

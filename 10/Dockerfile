@@ -78,8 +78,9 @@ RUN set -x; \
 	    && pip install -r /tmp/requirements.txt \
 	    && rm /tmp/requirements.txt
 
-# Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
+# Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+COPY download/addons/selected /mnt/extra-addons
 
 
 ##########
