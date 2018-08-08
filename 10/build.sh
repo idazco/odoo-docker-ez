@@ -59,7 +59,7 @@ then
     NO_BUILD_CACHE="--no-cache=true"
 fi
 
-
+echo
 TARGET_REPO="idazco"
 read -e -p "Target repo ---> " -i "$TARGET_REPO" TARGET_REPO
 if [ -z "$TARGET_REPO" ]
