@@ -1,6 +1,7 @@
 FROM debian:jessie
 MAINTAINER IDAZCO
 
+
 RUN set -x; \
         apt-get update \
         && apt-get install -y --no-install-recommends \
@@ -32,11 +33,10 @@ RUN set -x; \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
+        && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* wkhtmltox.deb \
         && export PYTHONIOENCODING=UTF-8 \
         && locale-gen en_US.UTF-8
 
-ADD nginx.conf /etc/nginx/nginx.conf
 
 ######
 # tini
@@ -52,38 +52,10 @@ RUN set -x \
 	&& chmod +x /usr/local/bin/tini \
 	&& tini -h
 
-######
-# Odoo
-######
 
-# 3rd party Python depencencies installed from requirements.txt
-ADD requirements.txt /tmp/requirements.txt
-
-# Copy entrypoint script and Odoo configuration file
-COPY ./entrypoint.sh /
-
-# Install Odoo
-ADD "download/odoo.deb" /tmp/odoo.deb
-RUN set -x; \
-        dpkg --force-depends -i /tmp/odoo.deb \
-        && apt-get update \
-        && apt-get -y install -f --no-install-recommends \
-        && rm -rf /var/lib/apt/lists/* /tmp/odoo.deb \
-        && mkdir -p /mnt/extra-addons \
-        && chown odoo:root /etc/odoo/odoo.conf \
-	    && chown -R odoo:root /var/lib/odoo \
-	    && chown -R odoo:root /mnt/extra-addons \
-	    && chown -R odoo:odoo /var/lib/nginx \
-        && chown -R odoo:odoo /var/log/nginx \
-	    && pip install -r /tmp/requirements.txt \
-	    && rm /tmp/requirements.txt
-
-# Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons
-VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
-COPY download/addons/selected /mnt/extra-addons
-
-
-##########
+#############
+# PG client
+#############
 # Modern projects use Postgres 9.6 so make sure we have the PG tools for v9.6
 # from https://github.com/frodenas/docker-postgresql/blob/master/Dockerfile#L4
 # However, if your project uses an older version, just set PG_VERSION here:
@@ -98,10 +70,39 @@ RUN DEBIAN_FRONTEND=noninteractive \
     postgresql-client-${PG_VERSION} && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+
+##############
+# Copy files
+##############
+COPY download/addons/selected /mnt/extra-addons/
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY entrypoint.sh /
+COPY requirements.txt /tmp/requirements.txt
+
+
+#############
+# Odoo setup
+#############
+RUN DEBIAN_FRONTEND=noninteractive \
+	&& curl https://nightly.odoo.com/odoo.key -o odoo10key \
+	&& apt-key add odoo10key \
+    && echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list \
+	&& mkdir -p /var/lib/odoo /etc/odoo
+
+RUN set -x; \
+	apt-get update && apt-get -y install odoo \
+	&& chown odoo:root /etc/odoo \
+	&& chown -R odoo:root /var/lib/odoo \
+	&& chown -R odoo:root /mnt/extra-addons \
+	&& chown -R odoo:odoo /var/lib/nginx \
+    && chown -R odoo:odoo /var/log/nginx \
+	&& pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requirements.txt \
+	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ##########
 # Startup
 ##########
-
 # make sure the entry point file is executable
 RUN chmod +x /entrypoint.sh
 

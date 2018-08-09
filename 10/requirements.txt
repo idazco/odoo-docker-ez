@@ -4,5 +4,4 @@ pygal==2.4
 boto3
 botocore
 pyjwt
-gevent
 psycogreen

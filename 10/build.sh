@@ -1,26 +1,17 @@
 #!/usr/bin/env bash
 cd "$(dirname "$0")"
 
-ODOO_VERSION="10.0"
-ODOO_RELEASE="20180122"
-DOWNLOAD_NAME="odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb"
-DOWNLOAD_HASH="836f0fb94aee0d3771cf2188309f6079ee35f83e"
-
-# Download Community Edition if the download folder does not have a .deb file in it
-if [ ! -f download/"$DOWNLOAD_NAME" ]; then
-	echo "Downloading Odoo CE version $ODOO_VERSION release $ODOO_RELEASE to download/$DOWNLOAD_NAME"
-	curl -o download/"$DOWNLOAD_NAME" -SL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb
-	echo "DOWNLOAD_HASH download/odoo_$DOWNLOAD_NAME" | sha1sum -c -
-fi
+mkdir -p ./download/addons/selected
 
 TAG="community"
-if [ "$1" = "ENTERPRISE" ]; then
-	TAG="enterprise"
-elif [ ! -f download/odoo.deb ]; then
-	cd download
-	ln -s "$DOWNLOAD_NAME" odoo.deb
-	cd ../
-fi
+#if [ "$1" = "ENTERPRISE" ]; then
+#	TAG="enterprise"
+#	# get the enterprise modules (assuming we have access ~ else this won't work)
+#	rm -rf tmp/*
+#	git clone -b 10.0 --single-branch git@github.com:odoo/enterprise.git ./download/enterprise
+#	cp -R ./download/enterprise/* ./download/addons/selected/
+#	cp -R ./download/enterprise/.tx ./download/addons/selected/
+#fi
 
 read -p "Download (or re-download) extra addons? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
@@ -29,7 +20,6 @@ then
 	function clean_up () {
 		rm -rf ./download/addons/tmp*
 	}
-	mkdir -p ./download/addons/selected
 	clean_up
 	function get_zip_file_from_github () {
 		curl -L -o ./download/addons/tmp.zip $1
@@ -47,19 +37,16 @@ then
 	clean_mv /misc-addons-10.0 web_debranding
 	# TODO: add other modules as needed
 	clean_up
+	echo
 fi
-
-
-# Build the image
-echo "Building image"
 
 read -p "Disable build cache? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     NO_BUILD_CACHE="--no-cache=true"
+    echo
 fi
 
-echo
 TARGET_REPO="idazco"
 read -e -p "Target repo ---> " -i "$TARGET_REPO" TARGET_REPO
 if [ -z "$TARGET_REPO" ]
