@@ -1,7 +1,8 @@
-geopy==1.11
+geopy
 simplejson
-pygal==2.4
+pygal
 boto3
 botocore
 pyjwt
-psycogreen
+gevent==1.1.2
+psycogreen==1.0
