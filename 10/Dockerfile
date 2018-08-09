@@ -112,6 +112,7 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Set default user when running the container
 USER odoo
+RUN export PYTHONIOENCODING=UTF-8
 
 ENTRYPOINT ["tini", "--", "/entrypoint.sh"]
 CMD ["odoo"]
