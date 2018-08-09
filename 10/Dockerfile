@@ -9,7 +9,6 @@ RUN set -x; \
             curl \
             unzip \
             node-less \
-            python-gevent \
             python-pip \
             python-renderpm \
             python-support \
@@ -35,7 +34,10 @@ RUN set -x; \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* wkhtmltox.deb \
         && export PYTHONIOENCODING=UTF-8 \
-        && locale-gen en_US.UTF-8
+        && locale-gen en_US.UTF-8 \
+        && curl https://nightly.odoo.com/odoo.key -o odoo10key \
+		&& apt-key add odoo10key && rm odoo10key \
+		&& echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list
 
 
 ######
@@ -83,22 +85,15 @@ COPY requirements.txt /tmp/requirements.txt
 #############
 # Odoo setup
 #############
-RUN DEBIAN_FRONTEND=noninteractive \
-	&& curl https://nightly.odoo.com/odoo.key -o odoo10key \
-	&& apt-key add odoo10key \
-    && echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list \
-	&& mkdir -p /var/lib/odoo /etc/odoo
-
-RUN set -x; \
-	apt-get update && apt-get -y install odoo \
+RUN set -x; pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requirements.txt \
+	&& apt-get update && apt-get -y install odoo \
+	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 	&& chown odoo:root /etc/odoo \
 	&& chown -R odoo:root /var/lib/odoo \
 	&& chown -R odoo:root /mnt/extra-addons \
 	&& chown -R odoo:odoo /var/lib/nginx \
-    && chown -R odoo:odoo /var/log/nginx \
-	&& pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requirements.txt \
-	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && chown -R odoo:odoo /var/log/nginx
 
 ##########
 # Startup
