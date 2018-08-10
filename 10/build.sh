@@ -3,16 +3,6 @@ cd "$(dirname "$0")"
 
 mkdir -p ./download/addons/selected
 
-TAG="community"
-#if [ "$1" = "ENTERPRISE" ]; then
-#	TAG="enterprise"
-#	# get the enterprise modules (assuming we have access ~ else this won't work)
-#	rm -rf tmp/*
-#	git clone -b 10.0 --single-branch git@github.com:odoo/enterprise.git ./download/enterprise
-#	cp -R ./download/enterprise/* ./download/addons/selected/
-#	cp -R ./download/enterprise/.tx ./download/addons/selected/
-#fi
-
 read -p "Download (or re-download) extra addons? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -54,6 +44,6 @@ then
 	TARGET_REPO="idazco"
 fi
 
-COMMAND="docker build $NO_BUILD_CACHE -t $TARGET_REPO/odoo10:$TAG ."
+COMMAND="docker build $NO_BUILD_CACHE -t $TARGET_REPO/odoo10 ."
 echo "$COMMAND"
 $COMMAND
