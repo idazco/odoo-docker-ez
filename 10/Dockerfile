@@ -27,6 +27,7 @@ RUN set -x; \
 			libpq-dev \
 			nginx \
 			locales \
+		&& pip install -U pip setuptools \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
@@ -94,6 +95,9 @@ RUN set -x; pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requiremen
 	&& chown -R odoo:root /mnt/extra-addons \
 	&& chown -R odoo:odoo /var/lib/nginx \
     && chown -R odoo:odoo /var/log/nginx
+
+# good to know what version of setuptools we have at this point
+RUN echo "###############" && easy_install --version && echo "###############"
 
 ##########
 # Startup
