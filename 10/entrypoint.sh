@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # start nginx as reverse proxy for Odoo
-nginx &
-sleep 5
-echo "Checking proxy service"
-curl --fail http://127.0.0.1:8080/proxy-health || exit 1
+function start_proxy() {
+	nginx &
+	sleep 5
+	echo "Checking proxy service"
+	curl --fail http://127.0.0.1:8080/proxy-health || exit 1
+}
 
 # set the postgres database host, port, user and password according to the environment
 # and pass them as arguments to the odoo process if not present in the config file
@@ -31,12 +33,15 @@ case "$1" in
     -- | odoo)
         shift
         if [[ "$1" == "scaffold" ]] ; then
+        	start_proxy
             exec odoo "$@"
         else
+        	start_proxy
             exec odoo "$@" "${DB_ARGS[@]}"
         fi
         ;;
     -*)
+        start_proxy
         exec odoo "$@" "${DB_ARGS[@]}"
         ;;
     *)
