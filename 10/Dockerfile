@@ -82,10 +82,16 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /
 COPY requirements.txt /tmp/requirements.txt
 
+# phantomjs is needed in testing the UI
+COPY resources/phantomjs* /tmp/phantomjs.tar.bz2
+RUN tar xf /tmp/phantomjs.tar.bz2 -C /tmp/ \
+	&& mv /tmp/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin \
+	&& phantomjs --version
 
-#############
-# Odoo setup
-#############
+
+##############
+## Odoo setup
+##############
 RUN set -x; pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requirements.txt \
 	&& apt-get update && apt-get -y install odoo \
 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \

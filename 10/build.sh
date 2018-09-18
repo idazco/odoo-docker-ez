@@ -23,7 +23,6 @@ then
 	URL="https://github.com/it-projects-llc/misc-addons/archive/10.0.zip"
 	get_zip_file_from_github $URL
 	clean_mv /misc-addons-10.0 base_session_store_psql
-	clean_mv /misc-addons-10.0 ir_attachment_s3
 	clean_mv /misc-addons-10.0 web_debranding
 	# TODO: add other modules as needed
 	clean_up
@@ -47,3 +46,6 @@ fi
 COMMAND="docker build $NO_BUILD_CACHE -t $TARGET_REPO/odoo10 ."
 echo "$COMMAND"
 $COMMAND
+echo
+echo "Push command:"
+echo "docker push $TARGET_REPO/odoo10"

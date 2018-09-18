@@ -14,7 +14,7 @@ services:
 
   odoo10:
     container_name: odoo10
-    image: "idazco/odoo10:community"
+    image: "idazco/odoo10:latest"
 
 #    build:
 #      context: .
