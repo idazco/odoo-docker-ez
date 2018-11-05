@@ -46,12 +46,26 @@ then
 fi
 
 
+# https://github.com/OCA/rest-framework
+read -p "Get / refresh addons from https://github.com/OCA/rest-framework? (y/N) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+	URL="https://github.com/OCA/rest-framework/archive/10.0.zip"
+	get_zip_file_from_github $URL
+	clean_mv /rest-framework-10.0 base_rest
+	clean_mv /rest-framework-10.0 base_rest_demo
+	clean_up
+	echo
+fi
+
+
+#========
 read -p "Disable build cache? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     NO_BUILD_CACHE="--no-cache=true"
-    echo
 fi
+echo
 
 TARGET_REPO="idazco"
 read -e -p "Target repo ---> " -i "$TARGET_REPO" TARGET_REPO
