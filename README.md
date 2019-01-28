@@ -1,5 +1,9 @@
 # odoo-docker-ez
 
+## Supported Versions
+
+I don't believe its practical to upgrade our deployments to every new version Odoo, but instead I upgrade even versions only. So currently this project is being developed and maintained for even versions of Odoo starting from v10. If I get a use case to support v11 or any other odd-numbered version, I'll do it.
+
 ## Project Goals
 
  - Provide a simple way to build Docker Odoo images
@@ -8,7 +12,7 @@
 ## Whats special about our build
 
  - Nginx reverse proxy is already part of the image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module.
- - We pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there. 
+ - I pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there. 
 
 <hr>
 
@@ -38,23 +42,10 @@ Refer to the Odoo documentation for correct configuration options. You can refer
 
 Additionally, if you are going to use features that require running an "evented" instance of Odoo, such as the Discuss module, then you **MUST** set `workers` to a value greater than zero.
 
-<hr>
-
-# Compatibility
-
- - Tested with `docker` 17 CE
- - Tested with `docker-compose` 1.17
 
 <hr>
 
 # Additional notes
 
-Re-tag the built image to whatever you want to call it and upload it your own Docker repo.
-For example:
-
-	docker tag idazco/odoo10 your-dockerhub-org/odoo10
-	docker push your-dockerhub-org/odoo10
-
-If you build an Enterprise edition image, make sure to upload it to a **private** repo.
-
-Running the demo uses Postgres 9.5, but you should be able to use Postgres 9.6 without any issues.
+ - [version 10](./10/README.md)
+ - [version 12](./12/README.md)
