@@ -79,7 +79,7 @@ COMMAND="docker build $NO_BUILD_CACHE -t $TARGET_REPO/odoo:10-latest ."
 echo "$COMMAND"
 $COMMAND
 echo
-if [ $0 == 0 ]; then
+if [ $? == 0 ]; then
 	echo
 	docker tag "$TARGET_REPO/odoo:10-latest" "$TARGET_REPO/odoo:10-$DATE"
 	echo "Push commands:"
