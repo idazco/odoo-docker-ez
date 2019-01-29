@@ -89,7 +89,7 @@ then
 	TARGET_REPO="idazco"
 fi
 
-DATE=`date +%Y-%m-%d`
+DATE=`date +%Y%m%d`
 COMMAND="docker build $NO_BUILD_CACHE -t $TARGET_REPO/odoo:10-latest ."
 echo "$COMMAND"
 $COMMAND
