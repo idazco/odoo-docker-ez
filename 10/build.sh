@@ -21,6 +21,21 @@ function clean_mv () {
 #========
 
 
+# Odoo source
+read -p "Get / refresh Odoo source (y/N) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+	URL="https://github.com/odoo/odoo/archive/10.0.zip"
+	mkdir -p ./download/odoo
+	curl -L -o ./download/tmp.zip $URL
+	unzip ./download/tmp.zip -d ./download/
+	rm ./download/tmp.zip
+	# prevent error when install this dep
+	sed -i '/PyYAML/d' ./download/odoo-10.0/requirements.txt
+	echo
+fi
+
+
 # https://github.com/it-projects-llc
 read -p "Get / refresh addons from https://github.com/it-projects-llc? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
@@ -46,17 +61,17 @@ then
 fi
 
 
-# https://github.com/OCA/rest-framework
-read -p "Get / refresh addons from https://github.com/OCA/rest-framework? (y/N) " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-	URL="https://github.com/OCA/rest-framework/archive/10.0.zip"
-	get_zip_file_from_github $URL
-	clean_mv /rest-framework-10.0 base_rest
-	clean_mv /rest-framework-10.0 base_rest_demo
-	clean_up
-	echo
-fi
+## https://github.com/OCA/rest-framework
+#read -p "Get / refresh addons from https://github.com/OCA/rest-framework? (y/N) " -n 1 -r
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+#	URL="https://github.com/OCA/rest-framework/archive/10.0.zip"
+#	get_zip_file_from_github $URL
+#	clean_mv /rest-framework-10.0 base_rest
+#	clean_mv /rest-framework-10.0 base_rest_demo
+#	clean_up
+#	echo
+#fi
 
 
 #========

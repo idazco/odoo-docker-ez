@@ -14,11 +14,7 @@ services:
 
   odoo10:
     container_name: odoo10
-    image: "idazco/odoo10:latest"
-
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
+    image: "idazco/odoo:10-latest"
 
     volumes:
       - ./run-demo.conf:/etc/odoo/odoo.conf:ro

@@ -2,6 +2,14 @@ FROM debian:jessie
 MAINTAINER IDAZCO
 
 
+######
+# tini
+######
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
+
 RUN set -x; \
         apt-get update \
         && apt-get install -y --no-install-recommends \
@@ -27,6 +35,7 @@ RUN set -x; \
 			libpq-dev \
 			nginx \
 			locales \
+			git \
 		&& pip install -U pip setuptools \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
@@ -36,17 +45,9 @@ RUN set -x; \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* wkhtmltox.deb \
         && export PYTHONIOENCODING=UTF-8 \
         && locale-gen en_US.UTF-8 \
-        && curl https://nightly.odoo.com/odoo.key -o odoo10key \
-		&& apt-key add odoo10key && rm odoo10key \
-		&& echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list
-
-
-######
-# tini
-######
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
+        && mkdir /opt/odoo \
+        && adduser --disabled-password --gecos "" odoo \
+        && chown -R odoo:odoo /opt/odoo
 
 
 #############
@@ -64,16 +65,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     apt-get update && \
     apt-get install -y --force-yes \
     postgresql-client-${PG_VERSION} && \
-	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
-##############
-# Copy files
-##############
-COPY download/addons/selected /mnt/extra-addons/
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY entrypoint.sh /
-COPY requirements.txt /tmp/requirements.txt
 
 # phantomjs is needed in testing the UI
 COPY resources/phantomjs* /tmp/phantomjs.tar.bz2
@@ -82,21 +75,34 @@ RUN tar xf /tmp/phantomjs.tar.bz2 -C /tmp/ \
 	&& phantomjs --version
 
 
-##############
-## Odoo setup
-##############
-RUN set -x; pip install --upgrade -r /tmp/requirements.txt && rm /tmp/requirements.txt \
-	&& apt-get update && apt-get -y install odoo \
-	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
-	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-	&& chown odoo:root /etc/odoo \
-	&& chown -R odoo:root /var/lib/odoo \
-	&& chown -R odoo:root /mnt/extra-addons \
-	&& chown -R odoo:odoo /var/lib/nginx \
-    && chown -R odoo:odoo /var/log/nginx
+##################
+# Copy and config
+##################
+COPY download/odoo-10.0 /opt/odoo/
+COPY download/addons/selected /mnt/extra-addons/
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY run-demo.conf /etc/odoo/odoo.conf
+COPY entrypoint.sh /
+COPY requirements.txt /tmp/requirements.txt
+# fix encoding issue
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+# install requirements and set permissions
+RUN set -x; \
+	mkdir -p /var/lib/odoo && \
+	ln -s /opt/odoo/odoo-bin /usr/bin/odoo && \
+	chown -R odoo:root /etc/odoo && \
+	chown -R odoo:odoo /var/lib/odoo && \
+	chown -R odoo:odoo /var/lib/nginx && \
+    chown -R odoo:odoo /var/log/nginx && \
+    pip install --upgrade pip && \
+	pip install -r /opt/odoo/requirements.txt && \
+	pip install -r /tmp/requirements.txt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# good to know what version of setuptools we have at this point
-RUN echo "###############" && easy_install --version && echo "###############"
 
 ##########
 # Startup
@@ -115,7 +121,8 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Set default user when running the container
 USER odoo
+
 RUN export PYTHONIOENCODING=UTF-8
 
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
-CMD ["odoo"]
+CMD ["/opt/odoo/odoo-bin"]
