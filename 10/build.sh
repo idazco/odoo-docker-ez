@@ -43,35 +43,13 @@ then
 	URL="https://github.com/it-projects-llc/misc-addons/archive/10.0.zip"
 	get_zip_file_from_github $URL
 	clean_mv /misc-addons-10.0 web_debranding
+	clean_mv /misc-addons-10.0 base_session_store_psql
+	clean_mv /misc-addons-10.0 ir_attachment_s3
+	clean_mv /misc-addons-10.0 web_sessions_management
 	# TODO: copy other modules as needed
 	clean_up
 	echo
 fi
-
-
-# https://github.com/odoo/odoo-extra
-read -p "Get / refresh addons from https://github.com/odoo/odoo-extra? (y/N) " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-	URL="https://github.com/odoo/odoo-extra/archive/10.0.zip"
-	get_zip_file_from_github $URL
-	clean_mv /odoo-extra-10.0 session_db
-	clean_up
-	echo
-fi
-
-
-## https://github.com/OCA/rest-framework
-#read -p "Get / refresh addons from https://github.com/OCA/rest-framework? (y/N) " -n 1 -r
-#if [[ $REPLY =~ ^[Yy]$ ]]
-#then
-#	URL="https://github.com/OCA/rest-framework/archive/10.0.zip"
-#	get_zip_file_from_github $URL
-#	clean_mv /rest-framework-10.0 base_rest
-#	clean_mv /rest-framework-10.0 base_rest_demo
-#	clean_up
-#	echo
-#fi
 
 
 #========
