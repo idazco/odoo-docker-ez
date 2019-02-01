@@ -71,7 +71,6 @@ then
 	clean_mv $SRC_DIR web_debranding
 	clean_mv $SRC_DIR base_session_store_psql
 	clean_mv $SRC_DIR ir_attachment_s3
-	clean_mv $SRC_DIR web_sessions_management
 	# TODO: copy other modules as needed
 	clean_up
 	echo
