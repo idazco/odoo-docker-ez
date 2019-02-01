@@ -1,0 +1,6 @@
+geopy
+simplejson
+pygal
+boto3
+botocore
+pyjwt

@@ -25,9 +25,9 @@ I don't believe its practical to upgrade our deployments to every new version Od
 
 ## Building a Community edition Docker image
 
-Just run the `build.sh` script
+Just run the `build.sh` script and pass in `10` or `12` as the param depending on which version of Odoo to build 
  
-## Running a demo instance using with Community edition
+## Running a demo instance with Community edition
 
 Just run the `run-demo` script. This will build the default image then run docker-compose to launch a database container and the Odoo container.
 
