@@ -1,14 +1,5 @@
 FROM debian:stretch
 
-
-######
-# tini
-######
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-
-
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
 
@@ -36,7 +27,6 @@ RUN set -x; \
             python3-watchdog \
             build-essential \
             xz-utils \
-            nginx \
         && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
         && echo '7e35a63f9db14f93ec7feeb0fce76b30c08f2057 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb\
@@ -85,7 +75,6 @@ RUN set -x;\
 ##################
 COPY download/odoo-12.0 /opt/odoo/
 COPY download/addons/selected /mnt/extra-addons/
-COPY nginx.conf /etc/nginx/nginx.conf
 COPY run-demo.conf /etc/odoo/odoo.conf
 COPY entrypoint.sh /
 COPY requirements.txt /tmp/requirements.txt
@@ -94,8 +83,6 @@ RUN set -x; \
 	ln -s /opt/odoo/odoo-bin /usr/bin/odoo && \
 	chown -R odoo:root /etc/odoo && \
 	chown -R odoo:odoo /var/lib/odoo && \
-	chown -R odoo:odoo /var/lib/nginx && \
-    chown -R odoo:odoo /var/log/nginx && \
 	chmod +x /entrypoint.sh && \
 	pip3 install wheel && \
 	pip3 install -r /tmp/requirements.txt && \
@@ -120,5 +107,5 @@ USER odoo
 
 RUN export PYTHONIOENCODING=UTF-8
 
-ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/opt/odoo/odoo-bin"]
