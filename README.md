@@ -11,8 +11,9 @@ I don't believe its practical to upgrade our deployments to every new version Od
 
 ## Whats special about our build
 
- - Nginx reverse proxy is already part of the image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module.
- - I pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there. 
+ - Nginx reverse proxy is already part of the version 10 image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module. In the version 12 directory we use haproxy with certbot in a separate container instead and provide a setup in docker-compose.yml
+ - I pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there.
+ - I pre-add certain useful modules that we seem to use often with certain clients. We also use modules that facilitate high availability deployments.
 
 <hr>
 
