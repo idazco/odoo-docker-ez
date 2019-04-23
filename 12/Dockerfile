@@ -96,9 +96,6 @@ RUN set -x; \
 # the Docker healthcheck command
 #HEALTHCHECK CMD curl --fail <todo> || exit 1
 
-# Expose proxy
-EXPOSE 8080
-
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
 
