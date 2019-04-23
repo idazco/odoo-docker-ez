@@ -1,0 +1,69 @@
+global
+  maxconn 1028
+
+  log 127.0.0.1 local0
+  log 127.0.0.1 local1 notice
+
+  ca-base /etc/ssl/certs
+  crt-base /etc/ssl/private
+
+  ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS
+  ssl-default-bind-options no-sslv3
+
+defaults
+  option forwardfor
+
+  log global
+
+  timeout connect 5000ms
+  timeout client 50000ms
+  timeout server 50000ms
+
+  stats enable
+  stats uri /stats
+  stats realm Haproxy\ Statistics
+  stats auth haproxyadmin:change_this_password
+
+
+frontend http_in
+  bind *:80
+  mode http
+
+  reqadd X-Forwarded-Proto:\ http
+
+  acl letsencrypt_http_acl path_beg /.well-known/acme-challenge/
+  redirect scheme https if !letsencrypt_http_acl
+  use_backend letsencrypt_http if letsencrypt_http_acl
+
+
+frontend https_in
+  bind *:443 ssl crt /usr/local/etc/haproxy/default.pem crt /usr/local/etc/haproxy/certs.d ciphers ECDHE-RSA-AES256-SHA:RC4-SHA:RC4:HIGH:!MD5:!aNULL:!EDH:!AESGCM
+  mode http
+  reqadd X-Forwarded-Proto:\ https
+  #sample
+  #use_backend docker_http_backend
+
+
+#>>> user backend ref section
+#>>> ------------------------
+  use_backend docker_odoo_12_longpolling if { path_beg /longpolling }
+  use_backend docker_odoo_12
+
+
+
+# do not edit this section
+backend letsencrypt_http
+  mode http
+  server letsencrypt_http_srv 127.0.0.1:8080
+
+
+
+#>>> user backend config section
+#>>> ---------------------------
+backend docker_odoo_12_longpolling
+  mode http
+  server server1 odoo-12:8072 check port 8072
+
+backend docker_odoo_12
+  mode http
+  server server1 odoo-12:8069 check port 8069
