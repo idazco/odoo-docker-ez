@@ -1,25 +1,43 @@
 version: '3'
+networks:
+  net-sslproxy:
+
 services:
+
+  proxy:
+    image: "dock1100/haproxy-certbot"
+    container_name: sslproxy
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - net-sslproxy
+    volumes:
+      - ./haproxy.cfg.example:/config/haproxy.cfg:ro
+      # These settings can be used when you ready to setup a more permanent deployment
+#      - /etc/docker/haproxy/letsencrypt/:/etc/letsencrypt
+#      - /etc/docker/haproxy/certs.d/:/usr/local/etc/haproxy/certs.d
+#      - /var/log/docker/haproxy/:/var/log/supervisord
+    ports:
+      - 80:80
+      - 8080:80
+      - 443:443
 
   postgres:
     container_name: odoo-db
     image: "postgres:10.0"
+    networks:
+      - net-sslproxy
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
-    expose:
-      - 5432
     ports:
       - 5433:5432
 
   odoo12:
-    container_name: odoo12
+    container_name: odoo-12
     image: "idazco/odoo:12-latest"
-
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-
+    networks:
+      - net-sslproxy
     volumes:
       - ./run-demo.conf:/etc/odoo/odoo.conf:ro
     depends_on:
@@ -27,6 +45,7 @@ services:
     links:
       - postgres:db
     ports:
-      - 8080:8080
+      - 8069:8069
+      - 8072:8072
     environment:
       - POSTGRES_DB=compose
