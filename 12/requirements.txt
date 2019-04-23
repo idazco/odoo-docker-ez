@@ -4,3 +4,4 @@ pygal
 boto3
 botocore
 pyjwt
+phonenumbers
