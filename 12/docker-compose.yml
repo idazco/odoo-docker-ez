@@ -40,12 +40,14 @@ services:
       - net-sslproxy
     volumes:
       - ./run-demo.conf:/etc/odoo/odoo.conf:ro
+      - ./var-lib-odoo/:/var/lib/odoo/
     depends_on:
       - postgres
     links:
       - postgres:db
     ports:
       - 8069:8069
+      - 8071:8071
       - 8072:8072
     environment:
       - POSTGRES_DB=compose
