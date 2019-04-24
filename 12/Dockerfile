@@ -34,7 +34,7 @@ RUN set -x; \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb  \
 		&& mkdir /opt/odoo \
 		&& adduser --disabled-password --gecos "" odoo \
-		&& chown -R odoo:odoo /opt/odoo
+		&& mkdir -p /var/lib/odoo
 
 
 #############
@@ -68,33 +68,46 @@ RUN set -x;\
     && rm -rf /var/lib/apt/lists/*
 
 
-# Install Odoo (from source, this is another place we diverge)
+# Install Odoo
+ENV ODOO_VERSION 12.0
+ARG ODOO_RELEASE=20190424
+ARG ODOO_SHA=3885be6791b9b8c2a74115299e57213c71db4363
+RUN set -x; \
+	curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
+	&& echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
+	&& dpkg --force-depends -i odoo.deb \
+	&& apt-get update \
+	&& apt-get -y install -f --no-install-recommends \
+	&& apt-get clean && rm -rf /var/lib/apt/lists/* odoo.deb
 
-##################
-# Copy and config
-##################
-COPY download/odoo-12.0 /opt/odoo/
+
+###############
+# Other add-ons
+###############
 COPY download/addons/selected /mnt/extra-addons/
-COPY run-demo.conf /etc/odoo/odoo.conf
-COPY entrypoint.sh /
 COPY requirements.txt /tmp/requirements.txt
 RUN set -x; \
-	mkdir -p /var/lib/odoo && \
-	ln -s /opt/odoo/odoo-bin /usr/bin/odoo && \
-	chown -R odoo:root /etc/odoo && \
 	chown -R odoo:odoo /var/lib/odoo && \
-	chmod +x /entrypoint.sh && \
 	pip3 install wheel && \
 	pip3 install -r /tmp/requirements.txt && \
-	pip3 install -r /opt/odoo/requirements.txt && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
+# Entrypoint; Odoo config; chown / chmod
+COPY ./entrypoint.sh /
+COPY run-demo.conf /etc/odoo/odoo.conf
+RUN pip3 install num2words xlwt \
+	&& chown odoo /etc/odoo/odoo.conf \
+	&& chown odoo /entrypoint.sh \
+	&& chmod +x /entrypoint.sh \
+    && chown -R odoo /mnt/extra-addons
 
 
 ##########
 # Startup
 ##########
 # the Docker healthcheck command
-#HEALTHCHECK CMD curl --fail <todo> || exit 1
+HEALTHCHECK CMD curl --fail http://127.0.0.1:8069/web/webclient/locale/en_US || exit 1
 
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
@@ -105,4 +118,4 @@ USER odoo
 RUN export PYTHONIOENCODING=UTF-8
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/opt/odoo/odoo-bin"]
+CMD ["odoo"]

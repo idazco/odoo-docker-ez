@@ -5,5 +5,3 @@ boto3
 botocore
 pyjwt
 phonenumbers
-num2words
-xlwt

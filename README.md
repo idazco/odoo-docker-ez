@@ -1,19 +1,17 @@
 # odoo-docker-ez
 
+A simple and complete way to build and run Odoo in Docker.
+
 ## Supported Versions
 
-I don't believe its practical to upgrade our deployments to every new version Odoo, but instead I upgrade even versions only. So currently this project is being developed and maintained for even versions of Odoo starting from v10. If I get a use case to support v11 or any other odd-numbered version, I'll do it.
+ 10 and 12
 
-## Project Goals
+## Whats different about our build
 
- - Provide a simple way to build Docker Odoo images
- - Make the images as complete as possible so that, for most use cases, things just work without additional effort
-
-## Whats special about our build
-
- - Nginx reverse proxy is already part of the version 10 image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module. In the version 12 directory we use haproxy with certbot in a separate container instead and provide a setup in docker-compose.yml
+ - Nginx reverse proxy is already part of the version 10 image and configured so that certain modules which require it, will work, for example, the Discuss (chat) module. For version 12, we 
+ use **haproxy with certbot** in a separate container instead and provide a setup in docker-compose.yml with a sample config.
  - I pre-install dependencies so that if certain standard/common modules are installed that need them, they are already there.
- - I pre-add certain useful modules that we seem to use often with certain clients. We also use modules that facilitate high availability deployments.
+ - I pre-add certain useful modules that we seem to use often with certain clients that want high availability deployments.
 
 <hr>
 

@@ -62,8 +62,8 @@ backend letsencrypt_http
 #>>> ---------------------------
 backend docker_odoo_12_longpolling
   mode http
-  server server1 odoo-12:8072 check port 8072
+  server longpolling-a odoo-12:8072 check port 8072
 
 backend docker_odoo_12
   mode http
-  server server1 odoo-12:8069 check port 8069
+  server odoo-a odoo-12:8069 check port 8069

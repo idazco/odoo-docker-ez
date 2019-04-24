@@ -38,28 +38,6 @@ function clean_mv () {
 #========
 
 
-# Odoo source
-read -p "Get / refresh Odoo source (y/N) " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-	URL="https://github.com/odoo/odoo/archive/$VER.0.zip"
-	curl -L -o ./download/tmp.zip $URL
-	unzip ./download/tmp.zip -d ./download/
-	rm ./download/tmp.zip
-	REQS="./download/odoo-$VER.0/requirements.txt"
-	echo "Adapting file $REQS"
-
-	# prevent error when install this dep with Odoo 10
-	if [[ $VER == "10" ]]; then
-		# this is already installed
-		sed -i '/PyYAML/d' $REQS
-
-	# prevent error when install this dep with Odoo 12
-	elif [[ $VER == "12" ]]; then
-		# this is already installed
-		sed -i '/pyldap/d' $REQS
-	fi
-	echo
-fi
 
 # https://github.com/it-projects-llc
 read -p "Get / refresh addons from https://github.com/it-projects-llc? (y/N) " -n 1 -r
