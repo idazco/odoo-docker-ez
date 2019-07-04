@@ -47,7 +47,7 @@ then
 	SRC_DIR="/misc-addons-$VER.0"
 	get_zip_file_from_github $URL
 	clean_mv $SRC_DIR web_debranding
-#	clean_mv $SRC_DIR base_session_store_psql
+	clean_mv $SRC_DIR base_session_store_psql
 	clean_mv $SRC_DIR ir_attachment_s3
 	# TODO: copy other modules as needed
 	clean_up
