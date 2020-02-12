@@ -1,14 +1,12 @@
 FROM debian:jessie
 MAINTAINER IDAZCO
 
-
 ######
 # tini
 ######
 ENV TINI_VERSION v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
-
 
 RUN set -x; \
         apt-get update \
@@ -36,6 +34,7 @@ RUN set -x; \
 			nginx \
 			locales \
 			git \
+			wget \
 		&& pip install -U pip setuptools \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
@@ -53,19 +52,16 @@ RUN set -x; \
 #############
 # PG client
 #############
-# Modern projects use Postgres 9.6 so make sure we have the PG tools for v9.6
-# from https://github.com/frodenas/docker-postgresql/blob/master/Dockerfile#L4
-# However, if your project uses an older version, just set PG_VERSION here:
-ENV PG_VERSION 9.6
 RUN DEBIAN_FRONTEND=noninteractive \
     cd /tmp && \
+    apt-get update && \
+    apt-get install -y gnupg2 && \
     curl https://www.postgresql.org/media/keys/ACCC4CF8.asc -o ACCC4CF8.asc && \
     apt-key add ACCC4CF8.asc && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
     apt-get update && \
-    apt-get install -y --force-yes \
-    postgresql-client-${PG_VERSION} && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get install -y postgresql-client-10 && \
+	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 # phantomjs is needed in testing the UI
@@ -78,10 +74,9 @@ RUN tar xf /tmp/phantomjs.tar.bz2 -C /tmp/ \
 ##################
 # Copy and config
 ##################
-COPY download/odoo-10.0 /opt/odoo/
+RUN mkdir /etc/odoo
 COPY download/addons/selected /mnt/extra-addons/
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY run-demo.conf /etc/odoo/odoo.conf
 COPY entrypoint.sh /
 COPY requirements.txt /tmp/requirements.txt
 # fix encoding issue
@@ -99,10 +94,18 @@ RUN set -x; \
 	chown -R odoo:odoo /var/lib/nginx && \
     chown -R odoo:odoo /var/log/nginx && \
     pip install --upgrade pip && \
-	pip install -r /opt/odoo/requirements.txt && \
 	pip install -r /tmp/requirements.txt && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+
+##################
+# Odoo installer
+##################
+RUN wget -O - https://nightly.odoo.com/odoo.key | apt-key add -
+RUN echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list
+RUN apt-get update && apt-get install -y odoo
+# replace the config
+COPY run-demo.conf /etc/odoo/odoo.conf
 
 ##########
 # Startup

@@ -1,4 +1,5 @@
 FROM debian:stretch
+MAINTAINER IDAZCO
 
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8

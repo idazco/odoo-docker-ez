@@ -38,7 +38,6 @@ function clean_mv () {
 #========
 
 
-
 # https://github.com/it-projects-llc
 read -p "Get / refresh addons from https://github.com/it-projects-llc? (y/N) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]
@@ -51,8 +50,8 @@ then
 	clean_mv $SRC_DIR ir_attachment_s3
 	# TODO: copy other modules as needed
 	clean_up
-	echo
 fi
+echo
 
 
 #========
@@ -80,7 +79,7 @@ if [ $? == 0 ]; then
 	docker tag "$TARGET_REPO/odoo:$VER-latest" "$TARGET_REPO/odoo:$VER-$DATE"
 	echo "Push commands:"
 	echo "docker push $TARGET_REPO/odoo:$VER-latest"
-	echo "docker push $TARGET_REPO/odoo:$VER""_$DATE"
+	echo "docker push $TARGET_REPO/odoo:$VER""-$DATE"
 else
 	echo "Error!"
 	exit 2
