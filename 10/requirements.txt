@@ -6,3 +6,5 @@ botocore
 pyjwt
 gevent==1.1.2
 psycogreen==1.0
+urllib3
+

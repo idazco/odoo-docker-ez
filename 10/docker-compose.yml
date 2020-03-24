@@ -2,8 +2,8 @@ version: '3'
 services:
 
   postgres:
-    container_name: odoo-db
-    image: "postgres:9.6"
+    container_name: odoodb
+    image: "postgres:10"
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
@@ -15,7 +15,6 @@ services:
   odoo10:
     container_name: odoo10
     image: "idazco/odoo:10-latest"
-
     volumes:
       - ./run-demo.conf:/etc/odoo/odoo.conf:ro
     depends_on:
@@ -24,3 +23,4 @@ services:
       - postgres:db
     ports:
       - 8080:8080
+      - 8069:8069

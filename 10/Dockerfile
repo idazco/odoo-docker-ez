@@ -37,17 +37,15 @@ RUN set -x; \
 			git \
 			wget \
 		&& pip install -U pip setuptools \
-        && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
-        && echo '7e35a63f9db14f93ec7feeb0fce76b30c08f2057 wkhtmltox.deb' | sha1sum -c - \
+        && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.jessie_amd64.deb \
+        && echo '4d104ff338dc2d2083457b3b1e9baab8ddf14202 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* wkhtmltox.deb \
         && export PYTHONIOENCODING=UTF-8 \
         && locale-gen en_US.UTF-8 \
-        && mkdir /opt/odoo \
-        && adduser --disabled-password --gecos "" odoo \
-        && chown -R odoo:odoo /opt/odoo
+        && adduser --disabled-password --gecos "" odoo
 
 
 #############
@@ -89,7 +87,6 @@ ENV LC_ALL en_US.UTF-8
 # install requirements and set permissions
 RUN set -x; \
 	mkdir -p /var/lib/odoo && \
-	ln -s /opt/odoo/odoo-bin /usr/bin/odoo && \
 	chown -R odoo:root /etc/odoo && \
 	chown -R odoo:odoo /var/lib/odoo && \
 	chown -R odoo:odoo /var/lib/nginx && \
@@ -104,7 +101,9 @@ RUN set -x; \
 ##################
 RUN wget -O - https://nightly.odoo.com/odoo.key | apt-key add -
 RUN echo "deb http://nightly.odoo.com/10.0/nightly/deb/ ./" >> /etc/apt/sources.list.d/odoo.list
-RUN apt-get update && apt-get install -y odoo
+RUN apt-get update \
+	&& apt-get install -y odoo \
+	&& ln -s /usr/lib/python2.7/dist-packages/odoo /opt
 # replace the config
 COPY run-demo.conf /etc/odoo/odoo.conf
 
@@ -129,4 +128,4 @@ USER odoo
 RUN export PYTHONIOENCODING=UTF-8
 
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
-CMD ["/opt/odoo/odoo-bin"]
+CMD ["odoo"]
