@@ -4,7 +4,7 @@ pygal
 boto3
 botocore
 pyjwt
-gevent==1.1.2
+gevent==23.9.1
 psycogreen==1.0
 urllib3
 
